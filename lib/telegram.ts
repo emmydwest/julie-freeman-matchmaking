@@ -1,0 +1,90 @@
+const TELEGRAM_API = 'https://api.telegram.org'
+
+export type VisitorContext = {
+  visitorId?: string
+  device?: string
+  platform?: string
+  language?: string
+  screen?: string
+  timezone?: string
+  page?: string
+}
+
+function clean(value: unknown, max = 1200) {
+  return String(value ?? '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim().slice(0, max)
+}
+
+function decodeHeader(value: string) {
+  try { return decodeURIComponent(value) } catch { return value }
+}
+
+export function requestDetails(request: Request) {
+  const headers = request.headers
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  const ip = forwarded || headers.get('x-real-ip') || 'Unavailable'
+  const city = decodeHeader(headers.get('x-vercel-ip-city') || headers.get('cf-ipcity') || '')
+  const region = headers.get('x-vercel-ip-country-region') || headers.get('cf-region') || ''
+  const country = headers.get('x-vercel-ip-country') || headers.get('cf-ipcountry') || ''
+  const latitude = headers.get('x-vercel-ip-latitude') || ''
+  const longitude = headers.get('x-vercel-ip-longitude') || ''
+  const location = [city, region, country].filter(Boolean).join(', ') || 'Unavailable from hosting provider'
+  return {
+    ip: clean(ip, 100),
+    location: clean(location, 200),
+    coordinates: latitude && longitude ? `${clean(latitude, 30)}, ${clean(longitude, 30)}` : '',
+    userAgent: clean(headers.get('user-agent') || 'Unavailable', 500),
+    referrer: clean(headers.get('referer') || 'Direct / unavailable', 500),
+  }
+}
+
+export function visitorLines(context: VisitorContext, request: Request) {
+  const details = requestDetails(request)
+  return [
+    `Visitor: ${clean(context.visitorId || 'Unavailable', 80)}`,
+    `IP: ${details.ip}`,
+    `Approx. location: ${details.location}`,
+    details.coordinates ? `Coordinates: ${details.coordinates}` : '',
+    `Device: ${clean(context.device || 'Unavailable', 120)}`,
+    `Platform: ${clean(context.platform || 'Unavailable', 120)}`,
+    `Screen: ${clean(context.screen || 'Unavailable', 60)}`,
+    `Language: ${clean(context.language || 'Unavailable', 60)}`,
+    `Timezone: ${clean(context.timezone || 'Unavailable', 80)}`,
+    `Page: ${clean(context.page || 'Unavailable', 500)}`,
+    `User agent: ${details.userAgent}`,
+    `Referrer: ${details.referrer}`,
+  ].filter(Boolean)
+}
+
+export async function sendTelegram(text: string) {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return { configured: false }
+
+  const chunks: string[] = []
+  let remaining = clean(text, 16000)
+  while (remaining) {
+    let cut = Math.min(3900, remaining.length)
+    if (cut < remaining.length) {
+      const newline = remaining.lastIndexOf('\n', cut)
+      if (newline > 2500) cut = newline
+    }
+    chunks.push(remaining.slice(0, cut))
+    remaining = remaining.slice(cut).trimStart()
+  }
+
+  for (const chunk of chunks) {
+    const response = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: chunk, disable_web_page_preview: true }),
+      cache: 'no-store',
+    })
+    if (!response.ok) throw new Error(`Telegram returned ${response.status}`)
+  }
+
+  return { configured: true }
+}
+
+export function safeText(value: unknown, max = 1200) {
+  return clean(value, max)
+}
