@@ -1,10 +1,9 @@
 import { randomBytes } from 'node:crypto'
-import { safeText, sendTelegram, visitorLines, type VisitorContext } from '@/lib/telegram'
+import { safeText, sendTelegram } from '@/lib/telegram'
 import { withinRateLimit } from '@/lib/rate-limit'
 
 type ConsultationRequest = {
   profile?: Record<string, unknown>
-  context?: VisitorContext
 }
 
 const labels: Record<string, string> = {
@@ -47,9 +46,6 @@ export async function POST(request: Request) {
       '',
       'PROFILE ANSWERS',
       ...answers,
-      '',
-      'VISITOR DETAILS',
-      ...visitorLines(body.context || {}, request),
     ].join('\n')
 
     const result = await sendTelegram(message)

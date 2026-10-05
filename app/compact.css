@@ -283,4 +283,58 @@ h2,.section-intro h2,.difference-heading h2,.process-copy h2,.julie-story h2,.pr
  .social-links { gap:6px; }
  .social-links a { padding:10px; font-size:10px; }
 }
+/* Keep the mobile hero as one compact text-and-photo composition. */
+@media(max-width:760px) {
+ .carousel-hero { padding:18px 16px 22px; gap:12px; }
+ .hero-slide { gap:12px; }
+ .carousel-hero .hero-copy { padding:18px; border-radius:20px; }
+ .carousel-hero .eyebrow { font-size:9px; letter-spacing:.12em; }
+ .carousel-hero h1 { margin:10px 0; font-size:clamp(29px,7.8vw,38px); line-height:1.04; }
+ .carousel-hero .hero-lead { font-size:13px; line-height:1.5; }
+ .carousel-hero .hero-actions { grid-template-columns:1fr 1fr; gap:6px; margin-top:12px; }
+ .carousel-hero .primary-button { padding:12px 10px; font-size:11px; }
+ .carousel-hero .secondary-link { padding:8px 3px; font-size:10px; text-align:center; }
+ .hero-contact { margin-top:10px; padding-top:10px; }
+ .hero-contact>p { margin-bottom:7px; font-size:10px; }
+ .hero-contact .contact-buttons { grid-template-columns:1fr 1fr; gap:6px; }
+ .hero-contact .contact-buttons .whatsapp-button { grid-column:1/-1; }
+ .hero-contact .contact-buttons a { min-height:38px; padding:7px; font-size:10px; }
+ .carousel-hero .hero-fee { margin-top:9px; font-size:10px; line-height:1.45; }
+ .carousel-hero .hero-mosaic { height:clamp(165px,48vw,220px); gap:8px; }
+ .carousel-hero .hero-mosaic figure { border-width:3px; border-radius:14px; }
+ .carousel-hero .hero-mosaic figcaption { padding:18px 6px 7px; font-size:9px; }
+ .carousel-hero .carousel-controls { gap:0; padding:3px 5px; }
+ .carousel-hero .carousel-controls button { width:34px; height:40px; }
+ .carousel-hero .carousel-controls .slide-dot { width:16px; height:40px; }
+ .carousel-hero .carousel-controls>span { margin-left:3px; font-size:8px; }
+ .hero-proof { display:none; }
+ .privacy-consent { padding:15px; gap:10px; }
+ .privacy-consent strong { font-size:16px; }
+ .privacy-consent p { font-size:12px; line-height:1.5; }
+ .privacy-consent>div:last-child { gap:8px; }
+ .privacy-consent button { min-height:44px; padding:9px 8px; font-size:11px; }
+}
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
+
+/* Give fee information and contact actions distinct breathing room. */
+.fee-note + .contact-buttons { margin-top:24px; }
+.contact-buttons + .fee-note { margin-top:24px; }
+.carousel-hero .hero-contact + .hero-fee { margin-top:22px; padding-top:16px; border-top:1px solid #aa5f8038; }
+.consent-details { margin-top:10px; font-size:12px; color:#765b67; }
+.consent-details summary { cursor:pointer; text-decoration:underline; text-underline-offset:3px; line-height:1.5; }
+.privacy-consent { max-height:70dvh; overflow-y:auto; }
+.couple-stories { grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.couple-stories article { display:flex; flex-direction:column; align-items:center; padding:32px 26px; text-align:center; background:linear-gradient(145deg,#fffdfd,#fff0f6); }
+.couple-photo { width:112px; height:112px; object-fit:cover; object-position:center; border:5px solid white; border-radius:50%; box-shadow:0 8px 24px #9b58782b; }
+.story-rating { display:grid; justify-items:center; gap:8px; margin-top:22px; }
+.story-rating>span { display:flex; gap:4px; color:#bc8027; }
+.story-rating small { font-size:11px; color:#765b67; }
+.couple-stories blockquote { flex:1; max-width:330px; margin:22px 0; font:22px/1.5 Georgia,serif; }
+.story-attribution h3 { margin:0 0 9px; font:20px Georgia,serif; color:#632b46; }
+.story-source-badge { display:inline-flex; align-items:center; gap:5px; color:#1765b6; background:#edf5ff; padding:6px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+.story-read-more { margin-top:20px; color:#82405e; text-decoration:underline; text-underline-offset:4px; font-size:12px; }
+@media(max-width:760px) {
+ .couple-stories { grid-template-columns:1fr; gap:20px; }
+ .couple-stories article { padding:28px 22px; }
+ .couple-stories blockquote { font-size:21px; }
+}
