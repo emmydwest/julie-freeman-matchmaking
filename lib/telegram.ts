@@ -4,9 +4,6 @@ export type VisitorContext = {
   visitorId?: string
   device?: string
   platform?: string
-  language?: string
-  screen?: string
-  timezone?: string
   page?: string
 }
 
@@ -25,14 +22,10 @@ export function requestDetails(request: Request) {
   const city = decodeHeader(headers.get('x-vercel-ip-city') || headers.get('cf-ipcity') || '')
   const region = headers.get('x-vercel-ip-country-region') || headers.get('cf-region') || ''
   const country = headers.get('x-vercel-ip-country') || headers.get('cf-ipcountry') || ''
-  const latitude = headers.get('x-vercel-ip-latitude') || ''
-  const longitude = headers.get('x-vercel-ip-longitude') || ''
   const location = [city, region, country].filter(Boolean).join(', ') || 'Unavailable from hosting provider'
   return {
     ip: clean(ip, 100),
     location: clean(location, 200),
-    coordinates: latitude && longitude ? `${clean(latitude, 30)}, ${clean(longitude, 30)}` : '',
-    userAgent: clean(headers.get('user-agent') || 'Unavailable', 500),
     referrer: clean(headers.get('referer') || 'Direct / unavailable', 500),
   }
 }
@@ -40,18 +33,11 @@ export function requestDetails(request: Request) {
 export function visitorLines(context: VisitorContext, request: Request) {
   const details = requestDetails(request)
   return [
-    `Visitor: ${clean(context.visitorId || 'Unavailable', 80)}`,
-    `IP: ${details.ip}`,
-    `Approx. location: ${details.location}`,
-    details.coordinates ? `Coordinates: ${details.coordinates}` : '',
-    `Device: ${clean(context.device || 'Unavailable', 120)}`,
-    `Platform: ${clean(context.platform || 'Unavailable', 120)}`,
-    `Screen: ${clean(context.screen || 'Unavailable', 60)}`,
-    `Language: ${clean(context.language || 'Unavailable', 60)}`,
-    `Timezone: ${clean(context.timezone || 'Unavailable', 80)}`,
-    `Page: ${clean(context.page || 'Unavailable', 500)}`,
-    `User agent: ${details.userAgent}`,
-    `Referrer: ${details.referrer}`,
+    `👤 ${clean(context.visitorId || 'Visitor ID unavailable', 80)} · ${details.ip}`,
+    `📍 ${details.location}`,
+    `📱 ${clean(context.device || 'Device unavailable', 60)} · ${clean(context.platform || 'Platform unavailable', 80)}`,
+    `🔗 ${clean(context.page || 'Page unavailable', 300)}`,
+    `↩️ ${clean(details.referrer, 250)}`,
   ].filter(Boolean)
 }
 

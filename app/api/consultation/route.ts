@@ -6,13 +6,16 @@ type ConsultationRequest = {
   profile?: Record<string, unknown>
 }
 
-const labels: Record<string, string> = {
-  firstName: 'First name', lastName: 'Last name', email: 'Email', phone: 'Phone', age: 'Age', city: 'City / region',
-  job: 'Occupation', ethnicity: 'Ethnicity', height: 'Height', weight: 'Weight', relationshipStatus: 'Relationship status',
-  children: 'Children', wantsChildren: 'Wants children', smoking: 'Smoking', drinking: 'Drinking', hobbies: 'Hobbies',
-  about: 'About', qualities: 'Desired qualities', partnerAge: 'Preferred age range', partnerEthnicity: 'Partner ethnicity preference',
-  partnerLocation: 'Location flexibility', relationshipGoal: 'Relationship goal', idealRelationship: 'Ideal relationship',
-  dealbreakers: 'Dealbreakers', matchNotes: 'Additional notes', confirmAdult: 'Adult confirmation', confirmSharing: 'Sharing consent',
+function answer(profile: Record<string, unknown>, key: string, label: string) {
+  const raw = profile[key]
+  const value = Array.isArray(raw) ? raw.join(', ') : raw === true ? 'Yes' : raw === false ? 'No' : raw
+  const compact = safeText(value || '', 1200).replace(/\s+/g, ' ')
+  return compact ? `${label}: ${compact}` : ''
+}
+
+function answerGroup(profile: Record<string, unknown>, title: string, fields: Array<[string, string]>) {
+  const values = fields.map(([key, label]) => answer(profile, key, label)).filter(Boolean)
+  return values.length ? [title, `• ${values.join('  ·  ')}`] : []
 }
 
 function consultationId() {
@@ -33,19 +36,28 @@ export async function POST(request: Request) {
     }
 
     const reference = consultationId()
-    const answers = Object.entries(labels).map(([key, label]) => {
-      const raw = profile[key]
-      const value = Array.isArray(raw) ? raw.join(', ') : raw === true ? 'Yes' : raw === false ? 'No' : raw
-      return `${label}: ${safeText(value || 'Not provided')}`
-    })
-
     const message = [
-      '💌 New matchmaking consultation',
-      `Reference: ${reference}`,
-      `Submitted: ${new Date().toISOString()}`,
+      '💌 NEW MATCHMAKING CONSULTATION',
+      `🆔 ${reference}  ·  🕒 ${new Date().toISOString().replace('T', ' ').slice(0, 16)} UTC`,
+      '✅ Adult and sharing consent confirmed',
       '',
-      'PROFILE ANSWERS',
-      ...answers,
+      ...answerGroup(profile, '👤 CONTACT & BASICS', [
+        ['firstName', 'First'], ['lastName', 'Last'], ['age', 'Age'], ['city', 'City'],
+        ['job', 'Work'], ['email', 'Email'], ['phone', 'Phone'],
+      ]),
+      ...answerGroup(profile, '🌿 LIFESTYLE', [
+        ['relationshipStatus', 'Status'], ['ethnicity', 'Background'], ['children', 'Children'],
+        ['wantsChildren', 'Wants children'], ['smoking', 'Smoking'], ['drinking', 'Drinking'],
+        ['height', 'Height'], ['weight', 'Weight'], ['hobbies', 'Hobbies'],
+      ]),
+      ...answerGroup(profile, '💞 MATCH PREFERENCES', [
+        ['relationshipGoal', 'Goal'], ['partnerAge', 'Age range'], ['partnerEthnicity', 'Background'],
+        ['partnerLocation', 'Location'], ['qualities', 'Qualities'],
+      ]),
+      ...answerGroup(profile, '📝 PERSONAL NOTES', [
+        ['about', 'About'], ['idealRelationship', 'Ideal relationship'],
+        ['dealbreakers', 'Dealbreakers'], ['matchNotes', 'Extra notes'],
+      ]),
     ].join('\n')
 
     const result = await sendTelegram(message)

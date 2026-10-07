@@ -61,9 +61,8 @@ function visitorContext() {
   const ua = navigator.userAgent
   const device = /Android/i.test(ua) ? 'Android' : /iPhone|iPad|iPod/i.test(ua) ? 'iOS' : /Windows/i.test(ua) ? 'Windows' : /Macintosh|Mac OS X/i.test(ua) ? 'macOS' : /Linux/i.test(ua) ? 'Linux' : 'Other'
   return {
-    visitorId, device, platform: navigator.platform || 'Unavailable', language: navigator.language,
-    screen: `${window.screen.width}×${window.screen.height}`, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    page: window.location.href,
+    visitorId, device, platform: navigator.platform || 'Unavailable',
+    page: `${window.location.origin}${window.location.pathname}`,
   }
 }
 
@@ -99,29 +98,9 @@ export default function Page() {
 
   useEffect(() => {
     if (consent !== 'accepted') return
-    report('visit', document.referrer ? `Arrived from ${document.referrer}` : 'Direct visit')
-
-    const clickReporter = (event: MouseEvent) => {
-      const target = (event.target as HTMLElement).closest('a,button') as HTMLElement | null
-      if (!target || target.closest('.privacy-consent')) return
-      const label = target.getAttribute('aria-label') || target.textContent?.replace(/\s+/g, ' ').trim() || target.tagName
-      report('click', label.slice(0, 180))
-    }
-    document.addEventListener('click', clickReporter)
-
-    const viewed = new Set<string>()
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return
-        const section = entry.target as HTMLElement
-        const label = section.id || section.getAttribute('aria-label') || section.className
-        if (viewed.has(label)) return
-        viewed.add(label)
-        report('section_view', label)
-      })
-    }, { threshold: 0.35 })
-    document.querySelectorAll('main > section, footer').forEach((section) => observer.observe(section))
-    return () => { document.removeEventListener('click', clickReporter); observer.disconnect() }
+    if (sessionStorage.getItem('jfm-visit-reported') === 'yes') return
+    sessionStorage.setItem('jfm-visit-reported', 'yes')
+    report('visit')
   }, [consent, report])
 
   useEffect(() => {
@@ -135,10 +114,18 @@ export default function Page() {
     const current = form[key]
     update(key, current.includes(value) ? current.filter((item) => item !== value) : [...current, value])
   }
-  const openForm = () => { setSaved(false); setStep(0); setFormOpen(true); report('form_started', 'Questionnaire opened') }
+  const openForm = () => {
+    setSaved(false)
+    setStep(0)
+    setFormOpen(true)
+    if (sessionStorage.getItem('jfm-form-started-reported') !== 'yes') {
+      sessionStorage.setItem('jfm-form-started-reported', 'yes')
+      report('form_started')
+    }
+  }
   const submitProfile = async (event: FormEvent) => {
     event.preventDefault()
-    if (step < steps.length - 1) { report('form_step', `Completed: ${steps[step]}`); setStep(step + 1); return }
+    if (step < steps.length - 1) { setStep(step + 1); return }
     setSubmitting(true)
     setSaveError('')
     try {
