@@ -8,15 +8,18 @@ import { SampleTestimonials } from '@/components/testimonials'
 const firstNames = [
   'Amelia', 'Sofia', 'Maya', 'Elena', 'Nora', 'Olivia', 'Camila', 'Naomi', 'Isla', 'Ava',
   'Zara', 'Mila', 'Layla', 'Chloe', 'Iris', 'Lucy', 'Aria', 'Lena', 'Grace', 'Mia',
-  'Eva', 'Leah', 'Ruby', 'Clara', 'Jade', 'Emma', 'Talia', 'Nina', 'Alice', 'Lily',
-  'Diana', 'Freya', 'Sara', 'Violet', 'Alina', 'Maeve', 'Julia', 'Noelle', 'Hannah',
+  'Eva', 'Leah', 'Ruby', 'Clara', 'Jade', 'Emma',
 ]
-const surnameInitials = ['A.', 'B.', 'C.', 'D.']
+const surnames = [
+  'Bennett', 'Carter', 'Reyes', 'Morgan', 'Hayes', 'Rivera', 'Brooks', 'Sullivan', 'Parker',
+  'Foster', 'Romero', 'Collins', 'Bell', 'Mendoza', 'Hughes', 'Flores', 'Ramirez', 'Price',
+  'Ward', 'Ellis', 'Navarro', 'Bailey', 'Cruz', 'Cooper', 'Dawson', 'Kim',
+]
 const missingProfileNumbers = new Set([5741, 5801])
 const profileNumbers = Array.from({ length: 158 }, (_, index) => 5657 + index).filter((number) => !missingProfileNumbers.has(number))
 const profiles = profileNumbers.map((number, index) => ({
   image: `/profiles/IMG_${number}.${number === 5814 ? 'PNG' : 'JPG'}`,
-  name: `${firstNames[index % firstNames.length]} ${surnameInitials[Math.floor(index / firstNames.length)]}`,
+  name: `${firstNames[index % firstNames.length]} ${surnames[(index * 7 + Math.floor(index / firstNames.length)) % surnames.length]}`,
   side: index % 2 === 0 ? 'left' : 'right',
 }))
 

@@ -5,23 +5,33 @@ import './compact.css'
 export const metadata: Metadata = {
   title: 'Julie Ferman | Personal Matchmaking for Men',
   description: 'A personal alternative to dating apps for relationship-minded men, with thoughtful introductions from experienced matchmaker Julie Ferman.',
-  generator: 'Julie Ferman Matchmaking',
-  icons: {
-    icon: [
+  metadataBase: new URL('https://julieferman.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'Julie Ferman Matchmaking',
+    title: 'Julie Ferman | Personal Matchmaking for Men',
+    description: 'Thoughtful introductions and personal matchmaking from Julie Ferman.',
+    url: '/',
+    images: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/julie-hero-landscape.jpg',
+        width: 1280,
+        height: 720,
+        alt: 'Julie Ferman, personal matchmaker and dating coach',
       },
     ],
-    apple: '/apple-icon.png',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Julie Ferman | Personal Matchmaking for Men',
+    description: 'Thoughtful introductions and personal matchmaking from Julie Ferman.',
+    images: ['/julie-hero-landscape.jpg'],
+  },
+  icons: {
+    icon: '/icon.svg',
   },
 }
 
