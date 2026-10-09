@@ -10,7 +10,7 @@ export function WhatsAppIcon() {
 
 export function ContactButtons({ consultationId }: { consultationId?: string }) {
   const message = consultationId ? `Hello Julie, I completed my matchmaking profile. My consultation reference is ${consultationId}.` : ''
-  const whatsapp = `https://wa.me/14782765512${message ? `?text=${encodeURIComponent(message)}` : ''}`
+  const whatsapp = `https://wa.me/14143177395${message ? `?text=${encodeURIComponent(message)}` : ''}`
   const sms = `sms:+14782765512${message ? `?body=${encodeURIComponent(message)}` : ''}`
   return <div className="contact-buttons"><a className="whatsapp-button" href={whatsapp} target="_blank" rel="noreferrer"><WhatsAppIcon /> WhatsApp Julie</a><a href="tel:+14782765512"><Phone size={16}/> Call Julie</a><a href={sms}><MessageCircle size={16}/> Text Julie</a></div>
 }
